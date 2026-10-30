@@ -12,6 +12,8 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
   const { db, save } = await connectDatabase();
+  require("./admin-setup")(db);
+  app.use("/api/admin", require("./admin-routes")(db, save));
 
   if (!process.env.SESSION_SECRET) {
     throw new Error("SESSION_SECRET missing in .env");
