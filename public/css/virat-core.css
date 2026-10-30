@@ -1,0 +1,52 @@
+:root {
+  --virat-primary: #174ea6;
+  --virat-accent: #ff9933;
+  --virat-bg: #f5f7fb;
+  --virat-card: #ffffff;
+  --virat-text: #172033;
+  --virat-border: #e3e8f0;
+}
+
+[data-theme="dark"] {
+  --virat-bg: #101827;
+  --virat-card: #1b2738;
+  --virat-text: #f2f5fa;
+  --virat-border: #344257;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--virat-bg);
+  color: var(--virat-text);
+  font-family: Arial, sans-serif;
+}
+
+.virat-card {
+  background: var(--virat-card);
+  border: 1px solid var(--virat-border);
+  border-radius: 16px;
+  padding: 18px;
+  transition: transform .2s ease;
+}
+
+.virat-card:hover {
+  transform: translateY(-3px);
+}
+
+.virat-button {
+  background: var(--virat-primary);
+  color: white;
+  border: 0;
+  padding: 11px 18px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .virat-card {
+    padding: 14px;
+  }
+}

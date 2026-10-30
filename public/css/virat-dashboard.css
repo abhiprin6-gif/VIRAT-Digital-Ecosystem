@@ -1,0 +1,70 @@
+:root {
+  --glass: rgba(255,255,255,.16);
+  --glass-border: rgba(255,255,255,.32);
+  --text: #ffffff;
+}
+
+.virat-unified-dashboard {
+  width: min(1200px, 94%);
+  margin: 24px auto;
+  color: var(--text);
+}
+
+.virat-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.virat-panel {
+  min-height: 125px;
+  padding: 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: .25s ease;
+}
+
+.virat-panel:hover {
+  transform: translateY(-4px);
+  border-color: #ff9933;
+  background: rgba(255,255,255,.24);
+}
+
+.virat-icon {
+  font-size: 32px;
+}
+
+.virat-panel h3 {
+  margin: 0 0 6px;
+}
+
+.virat-panel p {
+  margin: 0;
+  opacity: .85;
+  font-size: 13px;
+}
+
+@media(max-width:700px) {
+  .virat-panel-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .virat-panel {
+    min-height: 105px;
+    padding: 12px;
+  }
+}
+
+@media(max-width:380px) {
+  .virat-panel-grid {
+    grid-template-columns: 1fr;
+  }
+}

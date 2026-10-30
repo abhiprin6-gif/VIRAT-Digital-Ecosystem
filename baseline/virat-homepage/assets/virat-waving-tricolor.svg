@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#06152d"/><stop offset=".55" stop-color="#0a3150"/><stop offset="1" stop-color="#061323"/></linearGradient>
+ <linearGradient id="saffron" x2="0" y2="1"><stop stop-color="#ff9a22"/><stop offset="1" stop-color="#d85a12"/></linearGradient>
+ <linearGradient id="white" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#cfeeff"/></linearGradient>
+ <linearGradient id="green" x2="0" y2="1"><stop stop-color="#14b96a"/><stop offset="1" stop-color="#05643d"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#sky)"/>
+<circle cx="1290" cy="205" r="190" fill="#ffb54b" opacity=".2" filter="url(#glow)"/>
+<path d="M-80 80 Q240 5 500 105 T1080 100 T1680 55 L1680 245 Q1370 315 1080 230 T500 260 T-80 230Z" fill="url(#saffron)" opacity=".9"/>
+<path d="M-80 220 Q240 145 500 245 T1080 240 T1680 195 L1680 465 Q1370 520 1080 435 T500 470 T-80 445Z" fill="url(#white)" opacity=".93"/>
+<path d="M-80 420 Q240 345 500 445 T1080 440 T1680 395 L1680 700 Q1370 755 1080 670 T500 705 T-80 680Z" fill="url(#green)" opacity=".92"/>
+<g transform="translate(315 345)" opacity=".88" fill="none" stroke="#164b91" stroke-width="7">
+ <circle r="94"/><circle r="12" fill="#164b91"/>
+ <g stroke-width="4"><path d="M0-90V90M-90 0H90M-64-64L64 64M64-64L-64 64"/>
+ <path d="M-34-83L34 83M34-83L-34 83M-83-34L83 34M-83 34L83-34"/></g>
+</g>
+<path d="M0 710 Q350 620 700 720 T1600 690 V900 H0Z" fill="#06172a" opacity=".62"/>
+<path d="M0 0H1600V900H0Z" fill="none" stroke="#ffffff" stroke-opacity=".06" stroke-width="2"/>
+</svg>
