@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIRAT Service Details</title>
+<style>
+body{margin:0;padding:25px;font-family:Arial;background:#101827;color:white}
+main{max-width:700px;margin:40px auto;background:#1d2b40;padding:25px;border-radius:16px}
+h1{color:#ffd34e}a{color:#ffd34e}
+</style>
+</head>
+<body>
+<main>
+<a href="/public/services.html">← All Services</a>
+<h1 id="name">Loading...</h1>
+<p id="category"></p>
+<p id="status"></p>
+<p id="description">This service is listed in the VIRAT Digital Ecosystem. Its full functionality will be enabled as its backend is developed.</p>
+</main>
+<script>
+(async()=>{
+ const id=new URLSearchParams(location.search).get('id');
+ try{
+  const r=await fetch('/api/services');
+  if(!r.ok) throw Error();
+  const rows=await r.json();
+  const item=rows.find(x=>String(Array.isArray(x)?x[0]:x.id)===String(id));
+  if(!item) throw Error();
+  const get=(i,k)=>Array.isArray(item)?item[i]:item[k];
+  document.getElementById('name').textContent=get(1,'name');
+  document.getElementById('category').textContent='Category: '+(get(2,'category')||'VIRAT Service');
+  document.getElementById('status').textContent='Status: '+(get(3,'status')||'planned');
+ }catch(e){document.getElementById('name').textContent='Service not found';}
+})();
+</script>
+</body>
+</html>

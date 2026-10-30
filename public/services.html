@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIRAT Services</title>
+<style>
+body{margin:0;padding:22px;font-family:Arial;background:#101827;color:white}
+h1{color:#ffd34e}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.card{background:#1d2b40;padding:18px;border-radius:14px;border:1px solid #344761}
+a{color:#ffd34e;text-decoration:none}.card p{color:#bdc9d8}
+input{padding:13px;width:min(90%,400px);border-radius:9px;border:0;margin-bottom:20px}
+</style>
+</head>
+<body>
+<h1>VIRAT Digital Ecosystem</h1>
+<h2>All Services</h2>
+<input id="search" placeholder="Search services...">
+<div id="services" class="grid">Loading services...</div>
+<script>
+let all=[];
+async function load(){
+ const box=document.getElementById('services');
+ try{
+  const r=await fetch('/api/services');
+  if(!r.ok) throw Error('API error');
+  all=await r.json();
+  render();
+ }catch(e){box.textContent='Services could not be loaded. Please start the server.';}
+}
+function render(){
+ const q=document.getElementById('search').value.toLowerCase();
+ const rows=all.filter(x=>{
+  const n=Array.isArray(x)?x[1]:x.name;
+  const c=Array.isArray(x)?x[2]:x.category;
+  return (n+' '+c).toLowerCase().includes(q);
+ });
+ document.getElementById('services').innerHTML=rows.map(x=>{
+  const id=Array.isArray(x)?x[0]:x.id;
+  const name=Array.isArray(x)?x[1]:x.name;
+  const category=Array.isArray(x)?x[2]:x.category;
+  const status=Array.isArray(x)?x[3]:x.status;
+  return `<article class="card"><h3>${escapeHTML(name)}</h3><p>${escapeHTML(category||'VIRAT Service')}</p><p>Status: ${escapeHTML(status||'planned')}</p><a href="/public/service.html?id=${encodeURIComponent(id)}">View details →</a></article>`;
+ }).join('')||'No matching services.';
+}
+function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+document.getElementById('search').addEventListener('input',render);
+load();
+</script>
+</body>
+</html>
