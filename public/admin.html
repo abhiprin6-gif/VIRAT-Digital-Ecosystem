@@ -2,71 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VIRAT Admin Dashboard</title>
 <style>
-body{margin:0;padding:20px;background:#101827;color:white;font-family:Arial}
-main{max-width:900px;margin:auto}
-h1{color:#ffca28}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
-.card{background:#1d2b40;padding:20px;border-radius:14px}
-.number{font-size:30px;font-weight:bold;color:#ffca28}
-input,button{padding:12px;margin:5px 0;border:0;border-radius:8px}
-input{max-width:100%;box-sizing:border-box}
-button{background:#ffca28;color:#111;font-weight:bold}
-section{margin:22px 0;background:#1d2b40;padding:16px;border-radius:14px}
-pre{white-space:pre-wrap;overflow-wrap:anywhere}
+*{box-sizing:border-box}
+body{margin:0;background:#0c1424;color:#eef3ff;font-family:Arial,sans-serif}
+main{max-width:1100px;margin:auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{color:#ffc928}
+.panel,.stat{background:#17263b;border:1px solid #30435e;border-radius:14px;padding:18px;margin:16px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stat strong{display:block;font-size:30px;color:#ffc928;margin-top:8px}
+input,select,button{padding:12px;border-radius:8px;border:1px solid #52647e;font-size:15px;max-width:100%}
+input,select{background:#0c1424;color:white}
+button{background:#ffc928;color:#151515;border:0;font-weight:bold;cursor:pointer}
+button.danger{background:#d94b55;color:white}
+button.secondary{background:#344762;color:white}
+form{display:flex;gap:8px;flex-wrap:wrap}
+form input{flex:1;min-width:140px}
+.service{display:grid;grid-template-columns:1.2fr 1fr 1fr auto auto;gap:8px;align-items:center;padding:12px 0;border-bottom:1px solid #344762}
+.service input,.service select{width:100%;min-width:0}
+.small{color:#aab9ce;font-size:13px}
+#message{padding:10px;color:#ffc928}
+.hidden{display:none}
+@media(max-width:650px){.service{grid-template-columns:1fr 1fr}.service button{width:100%}}
 </style>
 </head>
 <body>
 <main>
-<h1>VIRAT Admin Dashboard</h1>
-<p id="message">Checking admin access...</p>
-<div class="cards">
-<div class="card">Users<div class="number" id="users">-</div></div>
-<div class="card">Services<div class="number" id="services">-</div></div>
-<div class="card">Activities<div class="number" id="activities">-</div></div>
-</div>
-<section>
-<h2>Add Service</h2>
-<input id="name" placeholder="Service name">
-<input id="category" placeholder="Category">
-<button onclick="addService()">Add Service</button>
+<header>
+  <h1>VIRAT Admin</h1>
+  <button id="logout" class="secondary hidden">Logout</button>
+</header>
+<div id="message">Please login to continue.</div>
+
+<section id="auth" class="panel">
+  <h2>Admin Login</h2>
+  <form id="loginForm">
+    <input id="loginEmail" type="email" placeholder="Admin email" required>
+    <input id="loginPassword" type="password" placeholder="Password" required>
+    <button>Login</button>
+  </form>
+  <hr>
+  <h3>Create Admin Account</h3>
+  <p class="small">Register using the same email configured as ADMIN_EMAIL in .env.</p>
+  <form id="registerForm">
+    <input id="regName" placeholder="Full name" required>
+    <input id="regEmail" type="email" placeholder="Admin email" required>
+    <input id="regPassword" type="password" minlength="10" placeholder="Password (10+ characters)" required>
+    <button>Create account</button>
+  </form>
 </section>
-<section><h2>Users</h2><pre id="userList">Loading...</pre></section>
-<section><h2>Services</h2><pre id="serviceList">Loading...</pre></section>
-<section><h2>Recent Activity</h2><pre id="activityList">Loading...</pre></section>
+
+<section id="dashboard" class="hidden">
+  <div class="stats">
+    <div class="stat">Users<strong id="users">0</strong></div>
+    <div class="stat">Services<strong id="services">0</strong></div>
+    <div class="stat">Activities<strong id="activities">0</strong></div>
+  </div>
+
+  <div class="panel">
+    <h2>Add New Service</h2>
+    <form id="addForm">
+      <input id="newName" placeholder="Service name" required>
+      <input id="newCategory" placeholder="Category" required>
+      <button>Add Service</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>Manage Services</h2>
+    <p class="small">Edit fields and press Save. Status options: Planned, Active, Maintenance.</p>
+    <div id="serviceList"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Registered Users</h2>
+    <pre id="userList" class="small"></pre>
+  </div>
+
+  <div class="panel">
+    <h2>Recent Activity</h2>
+    <pre id="activityList" class="small"></pre>
+  </div>
+</section>
 </main>
+
 <script>
+const $ = id => document.getElementById(id);
+const message = text => $("message").textContent = text;
+
 async function api(url, options={}) {
-  const r=await fetch(url,{credentials:"same-origin",...options,
-    headers:{"Content-Type":"application/json",...(options.headers||{})}});
-  const data=await r.json();
-  if(!r.ok) throw Error(data.message||"Request failed");
+  const response = await fetch(url, {
+    credentials:"same-origin",
+    ...options,
+    headers:{"Content-Type":"application/json",...(options.headers||{})}
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.message || "Request failed");
   return data;
 }
-async function load(){
-  try{
-    const d=await api("/api/admin/overview");
-    users.textContent=d.users;
-    services.textContent=d.services;
-    activities.textContent=d.activities;
-    userList.textContent=JSON.stringify(await api("/api/admin/users"),null,2);
-    serviceList.textContent=JSON.stringify(await api("/api/admin/services"),null,2);
-    activityList.textContent=JSON.stringify(await api("/api/admin/activity"),null,2);
-    message.textContent="Admin access verified";
-  }catch(e){message.textContent=e.message;}
+
+function showDashboard(show) {
+  $("auth").classList.toggle("hidden", show);
+  $("dashboard").classList.toggle("hidden", !show);
+  $("logout").classList.toggle("hidden", !show);
 }
-async function addService(){
-  try{
-    const d=await api("/api/admin/services",{method:"POST",
-      body:JSON.stringify({name:name.value,category:category.value})});
-    message.textContent=d.message;
-    name.value="";category.value="";
-    load();
-  }catch(e){message.textContent=e.message;}
+
+async function loadDashboard() {
+  const overview = await api("/api/admin/overview");
+  $("users").textContent = overview.users;
+  $("services").textContent = overview.services;
+  $("activities").textContent = overview.activities;
+
+  const services = await api("/api/admin/services");
+  const list = $("serviceList");
+  list.replaceChildren();
+
+  services.forEach(row => {
+    const [id,name,category,status] = row;
+    const item = document.createElement("div");
+    item.className = "service";
+
+    const nameInput = document.createElement("input");
+    nameInput.value = name;
+    nameInput.setAttribute("aria-label","Service name");
+
+    const categoryInput = document.createElement("input");
+    categoryInput.value = category;
+    categoryInput.setAttribute("aria-label","Category");
+
+    const statusSelect = document.createElement("select");
+    ["planned","active","maintenance"].forEach(value => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      statusSelect.appendChild(option);
+    });
+    statusSelect.value = status;
+
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "Save";
+    saveButton.onclick = async () => {
+      try {
+        const result = await api("/api/admin/services/" + id, {
+          method:"PUT",
+          body:JSON.stringify({
+            name:nameInput.value,
+            category:categoryInput.value,
+            status:statusSelect.value
+          })
+        });
+        message(result.message);
+        await loadDashboard();
+      } catch(error) { message(error.message); }
+    };
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.className = "danger";
+    deleteButton.onclick = async () => {
+      if (!confirm("Delete this service?")) return;
+      try {
+        const result = await api("/api/admin/services/" + id, {method:"DELETE"});
+        message(result.message);
+        await loadDashboard();
+      } catch(error) { message(error.message); }
+    };
+
+    item.append(nameInput,categoryInput,statusSelect,saveButton,deleteButton);
+    list.appendChild(item);
+  });
+
+  const users = await api("/api/admin/users");
+  $("userList").textContent = JSON.stringify(users,null,2);
+
+  const activity = await api("/api/admin/activity");
+  $("activityList").textContent = JSON.stringify(activity,null,2);
+
+  showDashboard(true);
+  message("Admin dashboard connected.");
 }
-load();
+
+$("loginForm").onsubmit = async event => {
+  event.preventDefault();
+  try {
+    await api("/api/auth/login", {
+      method:"POST",
+      body:JSON.stringify({
+        email:$("loginEmail").value,
+        password:$("loginPassword").value
+      })
+    });
+    await loadDashboard();
+  } catch(error) { message(error.message); }
+};
+
+$("registerForm").onsubmit = async event => {
+  event.preventDefault();
+  try {
+    await api("/api/auth/register", {
+      method:"POST",
+      body:JSON.stringify({
+        name:$("regName").value,
+        email:$("regEmail").value,
+        password:$("regPassword").value
+      })
+    });
+    await loadDashboard();
+  } catch(error) { message(error.message); }
+};
+
+$("addForm").onsubmit = async event => {
+  event.preventDefault();
+  try {
+    const result = await api("/api/admin/services", {
+      method:"POST",
+      body:JSON.stringify({
+        name:$("newName").value,
+        category:$("newCategory").value
+      })
+    });
+    $("newName").value="";
+    $("newCategory").value="";
+    message(result.message);
+    await loadDashboard();
+  } catch(error) { message(error.message); }
+};
+
+$("logout").onclick = async () => {
+  try {
+    await api("/api/auth/logout",{method:"POST"});
+    showDashboard(false);
+    message("Logged out.");
+  } catch(error) { message(error.message); }
+};
+
+(async () => {
+  try {
+    const state = await api("/api/auth/me");
+    if (state.authenticated) await loadDashboard();
+    else showDashboard(false);
+  } catch {
+    showDashboard(false);
+    message("Please login to continue.");
+  }
+})();
 </script>
 </body>
 </html>
