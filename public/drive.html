@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIRAT - V Drive & Productivity Workspace</title>
+    <link rel="stylesheet" href="/css/virat-core.css">
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f4f6f9; color: #333; }
+        .container { max-width: 950px; margin: 0 auto; }
+        header { background: #0d47a1; color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 22px; }
+        .nav-back { color: #fff; text-decoration: none; font-weight: bold; }
+        .workspace-grid { display: grid; grid-template-columns: 250px 1fr; gap: 20px; }
+        .sidebar { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .main-content { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .storage-bar { background: #e0e0e0; border-radius: 10px; height: 12px; margin: 10px 0; overflow: hidden; }
+        .storage-fill { background: #0d47a1; height: 100%; width: 15%; }
+        .btn-upload { display: block; width: 100%; padding: 10px; background: #0d47a1; color: white; text-align: center; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 15px; }
+        .btn-upload:hover { background: #1565c0; }
+        .tools-nav button { display: block; width: 100%; text-align: left; padding: 8px 12px; margin-bottom: 5px; background: none; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: #555; }
+        .tools-nav button:hover, .tools-nav button.active { background: #e8eaf6; color: #0d47a1; }
+        .file-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .file-table th, .file-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        .file-table th { background: #f5f5f5; color: #555; }
+        .badge-doc { background: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📁 VIRAT V Drive & Workspace</h1>
+            <a href="/" class="nav-back">← Back to Home</a>
+        </header>
+
+        <div class="workspace-grid">
+            <div class="sidebar">
+                <button class="btn-upload" onclick="triggerUpload()">+ New Upload / Doc</button>
+                <div class="tools-nav">
+                    <button class="active">📁 My Files</button>
+                    <button onclick="alert('V Docs Editor: Open official V Docs link')">📝 V Docs</button>
+                    <button onclick="alert('V Sheets Engine: Open official V Sheets link')">📊 V Sheets</button>
+                    <button onclick="alert('Slides Builder: Open official Slides link')">🖼️ V Slides</button>
+                </div>
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+                <div>
+                    <small>Storage Used: <strong>2.3 GB / 15 GB</strong></small>
+                    <div class="storage-bar"><div class="storage-fill"></div></div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <h3>Your Cloud Files & Documents</h3>
+                <table class="file-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileList">
+                        <tr>
+                            <td>📄 Project_VIRAT_Architecture.pdf</td>
+                            <td><span class="badge-doc">PDF</span></td>
+                            <td>1.2 MB</td>
+                            <td><a href="#" onclick="alert('Downloading File Demo...')">Download</a></td>
+                        </tr>
+                        <tr>
+                            <td>📊 Budget_Report_2026.xlsx</td>
+                            <td><span class="badge-doc">Sheet</span></td>
+                            <td>850 KB</td>
+                            <td><a href="#" onclick="alert('Opening Spreadsheet Demo...')">View</a></td>
+                        </tr>
+                        <tr>
+                            <td>📝 Citizen_Grievance_Draft.docx</td>
+                            <td><span class="badge-doc">Doc</span></td>
+                            <td>45 KB</td>
+                            <td><a href="#" onclick="alert('Opening Document Editor...')">Edit</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function triggerUpload() {
+            const fileName = prompt("Enter simulated file or document name to create/upload:");
+            if (fileName) {
+                const tbody = document.getElementById('fileList');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>📄 ${fileName}</td>
+                    <td><span class="badge-doc">User File</span></td>
+                    <td>0 KB</td>
+                    <td><a href="#" onclick="alert('Simulated file interaction')">View</a></td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>
