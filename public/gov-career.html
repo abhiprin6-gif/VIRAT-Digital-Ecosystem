@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIRAT - Government & Career Hub</title>
+    <link rel="stylesheet" href="/css/virat-core.css">
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f4f6f9; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { background: #1a237e; color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        h1 { margin: 0 0 10px 0; font-size: 24px; }
+        .section-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card h2 { border-bottom: 2px solid #1a237e; padding-bottom: 8px; color: #1a237e; }
+        .list-item { padding: 12px 0; border-bottom: 1px solid #eee; }
+        .list-item:last-child { border-bottom: none; }
+        .badge { display: inline-block; padding: 3px 8px; background: #e8eaf6; color: #1a237e; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .btn-link { display: inline-block; margin-top: 8px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .btn-link:hover { text-decoration: underline; }
+        .nav-back { display: inline-block; margin-bottom: 15px; color: #1a237e; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="nav-back">← Back to VIRAT Ecosystem Home</a>
+        <header>
+            <h1>VIRAT Government & Career Information Hub</h1>
+            <p>Verified official government schemes, recruitment notifications, and career resources.</p>
+        </header>
+
+        <div class="section-grid">
+            <div class="card">
+                <h2>🏛️ Government Schemes & Portals</h2>
+                <div id="gov-schemes-list">Loading schemes...</div>
+            </div>
+
+            <div class="card">
+                <h2>💼 Career & Job Notifications</h2>
+                <div id="career-list">Loading career portals...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/virat-modules.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const data = await getGovtAndCareerServices();
+            if (data && data.status === 'success') {
+                const govContainer = document.getElementById('gov-schemes-list');
+                const careerContainer = document.getElementById('career-list');
+
+                govContainer.innerHTML = data.government_schemes.map(s => `
+                    <div class="list-item">
+                        <strong>${s.title}</strong> <span class="badge">${s.status}</span><br>
+                        <a href="${s.link}" target="_blank" class="btn-link">Visit Official Portal →</a>
+                    </div>
+                `).join('');
+
+                careerContainer.innerHTML = data.career_updates.map(c => `
+                    <div class="list-item">
+                        <strong>${c.title}</strong> <span class="badge">${c.category}</span><br>
+                        <a href="${c.link}" target="_blank" class="btn-link">Open Job Portal →</a>
+                    </div>
+                `).join('');
+            }
+        });
+    </script>
+</body>
+</html>
