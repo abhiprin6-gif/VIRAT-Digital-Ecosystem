@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIRAT V Maps</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f3f6fb;color:#172033}
+header{background:#102b50;color:white;padding:22px}
+main{max-width:850px;margin:25px auto;padding:16px}
+section{background:white;padding:20px;margin:15px 0;border-radius:14px}
+input,select{width:100%;padding:13px;margin:8px 0;border:1px solid #ccd4df;border-radius:8px}
+button{padding:12px 18px;background:#1769d2;color:white;border:0;border-radius:8px;margin:5px 3px}
+a{color:#1769d2}
+#map{height:350px;width:100%;border:0;border-radius:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>VIRAT V Maps</h1>
+<p>Explore places and plan your journey</p>
+</header>
+<main>
+<section>
+<h2>Search a place</h2>
+<input id="place" placeholder="Hospital, railway station, market..." />
+<button id="search">Search Map</button>
+<button id="nearby">Find Nearby Places</button>
+<button id="location">Use My Location</button>
+<p id="message" role="status">Location is used only after your permission.</p>
+</section>
+<section>
+<h2>Map</h2>
+<iframe id="map" title="OpenStreetMap" loading="lazy"
+src="https://www.openstreetmap.org/export/embed.html?bbox=77.9%2C27.4%2C78.2%2C27.7&layer=mapnik">
+</iframe>
+<p><a id="openMap" href="https://www.openstreetmap.org/" target="_blank" rel="noopener">Open full map ↗</a></p>
+</section>
+<section>
+<h2>Directions</h2>
+<input id="destination" placeholder="Enter destination" />
+<select id="mode">
+<option value="driving">Driving</option>
+<option value="walking">Walking</option>
+</select>
+<button id="directions">Get Directions</button>
+</section>
+<p><a href="/">← Back to VIRAT Home</a></p>
+</main>
+<script>
+const place=document.getElementById('place');
+const message=document.getElementById('message');
+const map=document.getElementById('map');
+let currentPosition=null;
+
+function showMap(query){
+ const url='https://www.openstreetmap.org/search?query='+encodeURIComponent(query);
+ map.src='https://www.openstreetmap.org/export/embed.html?marker=27.4924%2C77.6737&layer=mapnik';
+ document.getElementById('openMap').href=url;
+ window.open(url,'_blank','noopener');
+}
+document.getElementById('search').onclick=()=>{
+ const q=place.value.trim();
+ if(q) showMap(q);
+ else message.textContent='Please enter a place to search.';
+};
+document.getElementById('nearby').onclick=()=>{
+ const q=place.value.trim()||'hospitals';
+ showMap(q+' near my location');
+};
+document.getElementById('location').onclick=()=>{
+ if(!navigator.geolocation){
+  message.textContent='Location is not supported by this browser.';return;
+ }
+ message.textContent='Waiting for location permission...';
+ navigator.geolocation.getCurrentPosition(pos=>{
+  currentPosition={lat:pos.coords.latitude,lon:pos.coords.longitude};
+  const url='https://www.openstreetmap.org/?mlat='+currentPosition.lat+'&mlon='+currentPosition.lon+'#map=15/'+currentPosition.lat+'/'+currentPosition.lon;
+  map.src='https://www.openstreetmap.org/export/embed.html?marker='+currentPosition.lat+'%2C'+currentPosition.lon+'&layer=mapnik';
+  document.getElementById('openMap').href=url;
+  message.textContent='Your location is shown on the map.';
+ },()=>message.textContent='Location permission denied or unavailable.');
+};
+document.getElementById('directions').onclick=()=>{
+ const dest=document.getElementById('destination').value.trim();
+ if(!dest){message.textContent='Enter a destination first.';return;}
+ const origin=currentPosition?currentPosition.lat+','+currentPosition.lon:'';
+ const url='https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route='+encodeURIComponent(origin+';'+dest);
+ window.open(url,'_blank','noopener');
+};
+</script>
+</body>
+</html>
