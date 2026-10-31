@@ -13,6 +13,13 @@
 
     if (!name) return;
 
+    if (/citizen problem hub|complaint hub/i.test(name)) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href = '/public/complaints.html';
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
     window.location.href =
