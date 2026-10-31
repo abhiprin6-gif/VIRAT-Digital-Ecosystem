@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIRAT Service</title>
+<style>
+body{margin:0;font-family:Arial;background:#f4f6fa;color:#172033}
+main{max-width:760px;margin:40px auto;padding:24px}
+article{background:white;padding:25px;border-radius:16px;box-shadow:0 5px 24px #0001}
+a{color:#1769d2}button{padding:12px 18px;border:0;border-radius:8px;background:#1769d2;color:white}
+</style>
+</head>
+<body>
+<main><article>
+<h1 id="name">VIRAT Service</h1>
+<p id="status">Loading service details...</p>
+<p>VIRAT Digital Ecosystem</p>
+<a href="/">Back to Home</a>
+</article></main>
+<script>
+const params=new URLSearchParams(location.search);
+const name=params.get('name')||'VIRAT Service';
+document.getElementById('name').textContent=name;
+fetch('/api/services')
+.then(r=>r.json())
+.then(data=>{
+ const items=Array.isArray(data)?data:(data.services||[]);
+ const item=items.find(x=>(x.name||'').toLowerCase()===name.toLowerCase());
+ document.getElementById('status').textContent=item
+ ? 'Service status: '+(item.status||'Available')
+ : 'Service information is being prepared.';
+})
+.catch(()=>document.getElementById('status').textContent='Service details could not be loaded right now.');
+</script>
+</body>
+</html>
