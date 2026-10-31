@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIRAT AI Assistant</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f3f6fb;color:#172033}
+header{background:#102b50;color:white;padding:20px}
+main{max-width:800px;margin:25px auto;padding:15px}
+#chat{background:white;border-radius:14px;padding:18px;min-height:300px}
+.message{padding:12px;margin:10px 0;border-radius:10px;background:#edf3fc;overflow-wrap:anywhere}
+.user{background:#dceaff}
+form{display:flex;gap:8px;margin-top:15px}
+input{flex:1;min-width:0;padding:14px;border:1px solid #ccd4df;border-radius:9px}
+button{padding:13px 18px;background:#1769d2;color:white;border:0;border-radius:9px}
+small{color:#64748b}
+</style>
+</head>
+<body>
+<header>
+<h1>VIRAT AI</h1>
+<p>Your Digital Ecosystem Assistant</p>
+</header>
+<main>
+<div id="chat" aria-live="polite">
+<div class="message">Namaste! VIRAT AI interface ready hai. Real AI provider connection abhi configure hona baaki hai.</div>
+</div>
+<form id="chatForm">
+<input id="prompt" maxlength="2000" placeholder="Write your message..." required>
+<button type="submit">Send</button>
+</form>
+<p><small>Messages are currently kept only in this page session. No AI response is generated until a provider is connected.</small></p>
+<p><a href="/">← Back to VIRAT Home</a></p>
+</main>
+<script>
+const chat=document.getElementById('chat');
+const form=document.getElementById('chatForm');
+const promptBox=document.getElementById('prompt');
+
+form.addEventListener('submit',event=>{
+ event.preventDefault();
+ const text=promptBox.value.trim();
+ if(!text)return;
+
+ const message=document.createElement('div');
+ message.className='message user';
+ message.textContent=text;
+ chat.append(message);
+
+ const notice=document.createElement('div');
+ notice.className='message';
+ notice.textContent='VIRAT AI provider is not connected yet. Your message has not been sent to an external service.';
+ chat.append(notice);
+
+ promptBox.value='';
+});
+</script>
+</body>
+</html>
