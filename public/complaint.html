@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIRAT | Citizen Complaint Hub</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b30,#102d43,#172b38);color:#fff;min-height:100vh;padding:20px}
+header{text-align:center;padding:22px 10px}
+.logo{font-size:30px;font-weight:900;color:#ffb52e}
+h1{margin:10px 0;font-size:27px}
+.sub{color:#b9cbd8}
+.panel{max-width:850px;margin:15px auto;background:#ffffff12;border:1px solid #ffffff30;border-radius:20px;padding:22px;backdrop-filter:blur(15px)}
+label{display:block;margin:15px 0 7px;font-weight:bold}
+input,select,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #ffffff40;background:#102b40;color:white;font-size:15px}
+textarea{min-height:110px;resize:vertical}
+input::placeholder,textarea::placeholder{color:#a9bac8}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{padding:13px 18px;border:0;border-radius:10px;font-weight:bold;cursor:pointer;margin:8px 5px 0 0}
+.primary{background:#ffb52e;color:#172536}
+.secondary{background:#e8edf2;color:#172536}
+.danger{background:#b83b3b;color:white}
+.note{font-size:13px;color:#c4d2dc;line-height:1.6}
+#message{margin-top:12px;color:#8ff0b0}
+.item{padding:13px;margin:10px 0;background:#ffffff12;border:1px solid #ffffff25;border-radius:12px}
+.item small{color:#c1d2df}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.panel{padding:16px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">🇮🇳 VIRAT</div>
+<h1>Citizen Complaint Hub</h1>
+<div class="sub">Your voice • Your rights • Your solution</div>
+</header>
+
+<main class="panel">
+<h2>Register a Complaint Draft</h2>
+<p class="note">Apni samasya ki details bharein. Aapka draft is device ke browser mein save hoga. Yeh form abhi kisi government department ko submit nahi karta.</p>
+
+<form id="complaintForm">
+<div class="grid">
+<div>
+<label for="name">Your Name</label>
+<input id="name" required placeholder="Enter your name">
+</div>
+<div>
+<label for="mobile">Mobile Number</label>
+<input id="mobile" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number">
+</div>
+</div>
+
+<label for="category">Complaint Category</label>
+<select id="category" required>
+<option value="">Select category</option>
+<option>Roads and Transport</option>
+<option>Electricity</option>
+<option>Water Supply</option>
+<option>Sanitation and Cleanliness</option>
+<option>Police and Public Safety</option>
+<option>Government Services</option>
+<option>Education</option>
+<option>Healthcare</option>
+<option>Agriculture</option>
+<option>Other</option>
+</select>
+
+<label for="department">Concerned Department (if known)</label>
+<input id="department" placeholder="Department name">
+
+<label for="location">Complaint Location</label>
+<input id="location" required placeholder="Village / City / District / State">
+
+<label for="subject">Complaint Subject</label>
+<input id="subject" required placeholder="Short title of your complaint">
+
+<label for="details">Complaint Details</label>
+<textarea id="details" required placeholder="Explain your problem, when it started and what action is needed"></textarea>
+
+<label for="evidence">Evidence files (optional)</label>
+<input id="evidence" type="file" multiple accept="image/*,.pdf">
+<p class="note">Evidence files are not uploaded. Only their filenames are saved in your draft.</p>
+
+<button class="primary" type="submit">Save Complaint Draft</button>
+<button class="secondary" type="button" id="export">Export Drafts</button>
+<button class="secondary" type="reset">Clear Form</button>
+<div id="message" role="status"></div>
+</form>
+</main>
+
+<section class="panel">
+<h2>My Saved Complaints</h2>
+<div id="saved"><p class="note">No saved drafts yet.</p></div>
+</section>
+
+<script>
+const form=document.getElementById('complaintForm');
+const message=document.getElementById('message');
+const saved=document.getElementById('saved');
+const KEY='virat_citizen_complaints_v1';
+
+function getDrafts(){
+ try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return []}
+}
+function render(){
+ const drafts=getDrafts();
+ saved.innerHTML='';
+ if(!drafts.length){saved.innerHTML='<p class="note">No saved drafts yet.</p>';return}
+ drafts.forEach((d,i)=>{
+  const div=document.createElement('div');
+  div.className='item';
+  const title=document.createElement('strong');
+  title.textContent=d.subject;
+  const info=document.createElement('p');
+  info.textContent=d.category+' • '+d.location;
+  const date=document.createElement('small');
+  date.textContent='Saved: '+d.created;
+  const del=document.createElement('button');
+  del.className='danger';
+  del.textContent='Delete Draft';
+  del.onclick=()=>{
+   const all=getDrafts();all.splice(i,1);
+   localStorage.setItem(KEY,JSON.stringify(all));render();
+  };
+  div.append(title,info,date,document.createElement('br'),del);
+  saved.appendChild(div);
+ });
+}
+form.addEventListener('submit',e=>{
+ e.preventDefault();
+ const drafts=getDrafts();
+ const d={
+  id:'VIRAT-'+Date.now(),
+  name:document.getElementById('name').value.trim(),
+  mobile:document.getElementById('mobile').value.trim(),
+  category:document.getElementById('category').value,
+  department:document.getElementById('department').value.trim(),
+  location:document.getElementById('location').value.trim(),
+  subject:document.getElementById('subject').value.trim(),
+  details:document.getElementById('details').value.trim(),
+  evidence:Array.from(document.getElementById('evidence').files).map(f=>f.name),
+  created:new Date().toLocaleString()
+ };
+ drafts.unshift(d);
+ try{
+  localStorage.setItem(KEY,JSON.stringify(drafts));
+  message.textContent='Complaint draft saved on this device.';
+  form.reset();render();
+ }catch(err){
+  message.textContent='Could not save. Browser storage may be full.';
+ }
+});
+document.getElementById('export').onclick=()=>{
+ const data=JSON.stringify(getDrafts(),null,2);
+ const blob=new Blob([data],{type:'application/json'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;a.download='virat-complaint-drafts.json';a.click();
+ URL.revokeObjectURL(url);
+};
+render();
+</script>
+</body>
+</html>
