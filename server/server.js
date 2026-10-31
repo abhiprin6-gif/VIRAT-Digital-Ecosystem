@@ -275,6 +275,9 @@ try {
   console.log('Auth setup note:', e.message);
 }
 
+
+app.get('/complaint', (req, res) => res.sendFile(require('path').join(__dirname, '../public/complaint.html')));
+
 app.listen(PORT, "0.0.0.0", () => {
     console.log("VIRAT Backend Started");
     console.log("Website: http://127.0.0.1:" + PORT);
