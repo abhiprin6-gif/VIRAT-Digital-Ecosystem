@@ -278,6 +278,10 @@ try {
 
 app.get('/complaint', (req, res) => res.sendFile(require('path').join(__dirname, '../public/complaint.html')));
 
+
+// VIRAT Citizen Problem Hub API
+app.use('/api/complaints', require('./routes/complaints'));
+
 app.listen(PORT, "0.0.0.0", () => {
     console.log("VIRAT Backend Started");
     console.log("Website: http://127.0.0.1:" + PORT);
