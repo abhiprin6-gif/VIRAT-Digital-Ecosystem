@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIRAT Citizen Problem Hub</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6fb;color:#172033;font-family:Arial,sans-serif}
+header{background:#102b50;color:white;padding:22px}
+main{max-width:760px;margin:25px auto;padding:16px}
+section{background:white;padding:20px;margin:16px 0;border-radius:14px;box-shadow:0 3px 15px #0001}
+input,select,textarea{width:100%;padding:12px;margin:8px 0 16px;border:1px solid #ccd4df;border-radius:8px}
+textarea{min-height:120px}
+button{background:#1769d2;color:white;border:0;border-radius:8px;padding:12px 18px}
+.item{border-top:1px solid #ddd;padding:12px 0}
+small{color:#64748b}
+</style>
+</head>
+<body>
+<header><h1>VIRAT Citizen Problem Hub</h1><p>Register and track your complaints</p></header>
+<main>
+<section>
+<h2>Submit a complaint</h2>
+<form id="complaintForm">
+<label>Category</label>
+<select id="category" required>
+<option value="">Choose category</option>
+<option>Government Service</option>
+<option>Road and Transport</option>
+<option>Water and Electricity</option>
+<option>Education</option>
+<option>Healthcare</option>
+<option>Agriculture</option>
+<option>Other</option>
+</select>
+<label>Subject</label>
+<input id="subject" maxlength="150" required>
+<label>Complaint details</label>
+<textarea id="description" maxlength="5000" required></textarea>
+<button type="submit">Submit Complaint</button>
+</form>
+<p id="message" role="status"></p>
+</section>
+<section>
+<h2>My complaints</h2>
+<button id="refresh" type="button">Refresh History</button>
+<div id="history">Loading...</div>
+</section>
+<p><a href="/">← Back to VIRAT Home</a></p>
+</main>
+<script>
+const message=document.getElementById('message');
+const historyBox=document.getElementById('history');
+
+async function loadHistory(){
+ historyBox.textContent='Loading...';
+ try{
+  const response=await fetch('/api/complaints',{credentials:'same-origin'});
+  const data=await response.json();
+  if(!response.ok) throw new Error(data.error||'Please login first');
+  historyBox.replaceChildren();
+  if(!data.complaints?.length){historyBox.textContent='No complaints registered yet.';return;}
+  data.complaints.forEach(c=>{
+   const item=document.createElement('div');item.className='item';
+   const title=document.createElement('strong');title.textContent=c.subject;
+   const details=document.createElement('p');details.textContent=c.description;
+   const meta=document.createElement('small');
+   meta.textContent=c.id+' • '+c.category+' • '+c.status+' • '+new Date(c.createdAt).toLocaleString();
+   item.append(title,details,meta);historyBox.append(item);
+  });
+ }catch(error){historyBox.textContent=error.message;}
+}
+
+document.getElementById('complaintForm').addEventListener('submit',async e=>{
+ e.preventDefault();message.textContent='Submitting...';
+ const payload={
+  category:document.getElementById('category').value,
+  subject:document.getElementById('subject').value.trim(),
+  description:document.getElementById('description').value.trim()
+ };
+ try{
+  const response=await fetch('/api/complaints',{
+   method:'POST',credentials:'same-origin',
+   headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+  });
+  const data=await response.json();
+  if(!response.ok) throw new Error(data.error||'Submission failed');
+  message.textContent='Complaint saved. ID: '+data.complaint.id;
+  e.target.reset();loadHistory();
+ }catch(error){message.textContent=error.message;}
+});
+document.getElementById('refresh').addEventListener('click',loadHistory);
+loadHistory();
+</script>
+</body>
+</html>
