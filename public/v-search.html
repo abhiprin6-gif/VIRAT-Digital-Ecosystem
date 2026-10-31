@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIRAT V Search</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:#172033;font-family:Arial}
+header{text-align:center;padding:45px 15px}
+.logo{font-size:38px;font-weight:bold;color:#1769d2}
+.search{display:flex;max-width:650px;margin:20px auto;gap:8px}
+input{flex:1;min-width:0;padding:15px;border:1px solid #ccd4df;border-radius:25px}
+button{padding:14px 20px;background:#1769d2;color:white;border:0;border-radius:25px}
+main{max-width:850px;margin:auto;padding:15px}
+.result{background:white;padding:16px;margin:12px 0;border-radius:12px}
+a{color:#1769d2;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">VIRAT V Search</div>
+<p>Search services across VIRAT Digital Ecosystem</p>
+<form class="search" id="searchForm">
+<input id="query" placeholder="Search VIRAT services..." required>
+<button>Search</button>
+</form>
+<a id="webSearch" target="_blank" rel="noopener">Search the web ↗</a>
+</header>
+<main>
+<h2>VIRAT Services</h2>
+<div id="results">Enter a keyword to find services.</div>
+</main>
+<script>
+const query=document.getElementById('query');
+const results=document.getElementById('results');
+let services=[];
+
+async function loadServices(){
+ try{
+  const response=await fetch('/api/services');
+  const data=await response.json();
+  services=Array.isArray(data)?data:(data.services||[]);
+ }catch(e){services=[];}
+}
+
+function search(){
+ const q=query.value.trim().toLowerCase();
+ document.getElementById('webSearch').href=
+  'https://www.google.com/search?q='+encodeURIComponent(query.value.trim());
+ results.replaceChildren();
+ if(!q){results.textContent='Enter a search keyword.';return;}
+ const matches=services.filter(s=>
+  ((s.name||'')+' '+(s.category||'')+' '+(s.status||''))
+  .toLowerCase().includes(q));
+ if(!matches.length){results.textContent='No matching VIRAT service found. Try web search.';return;}
+ matches.forEach(s=>{
+  const card=document.createElement('article');
+  card.className='result';
+  const title=document.createElement('h3');
+  title.textContent=s.name||'VIRAT Service';
+  const info=document.createElement('p');
+  info.textContent=(s.category||'Service')+' • '+(s.status||'Planned');
+  const link=document.createElement('a');
+  link.href='/public/open-service.html?name='+encodeURIComponent(s.name||'');
+  link.textContent='Open service';
+  card.append(title,info,link);
+  results.append(card);
+ });
+}
+document.getElementById('searchForm').addEventListener('submit',e=>{
+ e.preventDefault();search();
+});
+loadServices();
+</script>
+</body>
+</html>
