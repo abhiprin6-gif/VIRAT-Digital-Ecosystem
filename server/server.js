@@ -246,7 +246,36 @@ async function startServer() {
     });
   });
 
-  app.listen(PORT, "0.0.0.0", () => {
+  
+// Safe Module Integration
+try {
+  const moduleRoutes = require('./modules-routes');
+  app.use('/', moduleRoutes);
+  console.log('VIRAT Modules Engine loaded successfully.');
+} catch (e) {
+  console.log('Module route load note:', e.message);
+}
+
+
+// Safe Authentication & Session Integration
+try {
+  const session = require('express-session');
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(session({
+    secret: 'virat-ecosystem-secure-key-2026',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+  }));
+  const authRoutes = require('./auth-routes');
+  app.use('/', authRoutes);
+  console.log('VIRAT Security & Authentication Engine loaded.');
+} catch (e) {
+  console.log('Auth setup note:', e.message);
+}
+
+app.listen(PORT, "0.0.0.0", () => {
     console.log("VIRAT Backend Started");
     console.log("Website: http://127.0.0.1:" + PORT);
     console.log("Auth API: /api/auth");
